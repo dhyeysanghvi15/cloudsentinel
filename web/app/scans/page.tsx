@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { apiGet } from "../../components/api";
+import { ApiError } from "../../components/api_error";
 import { Card } from "../../components/ui";
 
 type ScanMeta = {
@@ -85,11 +86,7 @@ export default function Scans() {
         <div className="mt-1 text-sm text-slate-400">Compare scans to see improvements/regressions.</div>
       </div>
 
-      {err ? (
-        <div className="rounded-lg border border-rose-900 bg-rose-950/30 p-3 text-sm text-rose-200">
-          {err}
-        </div>
-      ) : null}
+      {err ? <ApiError error={err} /> : null}
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card title="Select Scan A">

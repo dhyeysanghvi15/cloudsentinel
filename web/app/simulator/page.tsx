@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { apiGet, apiPost } from "../../components/api";
+import { ApiError } from "../../components/api_error";
 import { Button, Card, Input } from "../../components/ui";
 
 type TimelineItem = {
@@ -64,9 +65,7 @@ export default function Simulator() {
         </div>
       </div>
 
-      {err ? (
-        <div className="rounded-lg border border-rose-900 bg-rose-950/30 p-3 text-sm text-rose-200">{err}</div>
-      ) : null}
+      {err ? <ApiError error={err} /> : null}
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card title="Scenarios">

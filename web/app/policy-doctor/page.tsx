@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { apiPost } from "../../components/api";
+import { ApiError } from "../../components/api_error";
 import { Button, Card, Textarea } from "../../components/ui";
 
 type Finding = { severity: "error" | "warning" | "suggestion"; message: string; why: string; hint?: string | null };
@@ -53,7 +54,7 @@ export default function PolicyDoctor() {
               {loading ? "Validating…" : "Validate"}
             </Button>
           </div>
-          {err ? <div className="mt-3 text-sm text-rose-200">{err}</div> : null}
+          {err ? <div className="mt-3"><ApiError error={err} /></div> : null}
         </Card>
 
         <Card title="Findings">
@@ -81,4 +82,3 @@ export default function PolicyDoctor() {
     </div>
   );
 }
-

@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { apiGet, apiPost } from "../../components/api";
+import { ApiError } from "../../components/api_error";
 import { Button, Card } from "../../components/ui";
+import { useAppMode } from "../../components/mode";
 
 type LatestScore = {
   score: number | null;
@@ -19,6 +21,7 @@ type ScanMeta = {
 };
 
 export default function Dashboard() {
+  const { mode } = useAppMode();
   const [latest, setLatest] = useState<LatestScore>({ score: null, scan_id: null });
   const [scans, setScans] = useState<ScanMeta[]>([]);
   const [loading, setLoading] = useState(false);
@@ -79,11 +82,9 @@ export default function Dashboard() {
         </Button>
       </div>
 
-      {err ? (
-        <div className="rounded-lg border border-rose-900 bg-rose-950/30 p-3 text-sm text-rose-200">
-          {err}
-        </div>
-      ) : null}
+      {mode === "demo" ? <DemoWhatYoureSeeing /> : null}
+
+      {err ? <ApiError error={err} /> : null}
 
       <div className="grid gap-6 md:grid-cols-3">
         <Card title="Posture Score (0–100)">
@@ -185,3 +186,29 @@ function TopRisks({ scanId }: { scanId: string }) {
   );
 }
 
+function DemoWhatYoureSeeing() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="rounded-lg border border-slate-800 bg-slate-950 px-4 py-3 text-sm">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between text-left"
+      >
+        <div className="font-medium text-slate-200">What you’re seeing (Demo Mode)</div>
+        <div className="text-xs text-slate-400">{open ? "Hide" : "Show"}</div>
+      </button>
+      {open ? (
+        <div className="mt-3 grid gap-2 text-xs text-slate-400">
+          <div>
+            This UI is fully interactive with bundled sample data (scan history, diffs, policy findings, and a detection
+            timeline).
+          </div>
+          <div>
+            Switch to <span className="text-slate-200">Local API</span> in the header to run the real FastAPI backend
+            with SQLite persistence on your machine.
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}

@@ -1,20 +1,37 @@
 import { demoGetLatestScore, demoGetScan, demoGetTimeline, demoListScans, demoPolicyValidate, demoRunScan, demoSimulate } from "./demo_store";
 import { getStoredApiBaseUrl, getStoredMode } from "./mode";
+import { pushToast } from "./toast";
 
 async function httpGet<T>(baseUrl: string, path: string): Promise<T> {
-  const res = await fetch(`${baseUrl}${path}`, { cache: "no-store" });
-  if (!res.ok) throw new Error(await res.text());
-  return (await res.json()) as T;
+  try {
+    const res = await fetch(`${baseUrl}${path}`, { cache: "no-store" });
+    if (!res.ok) throw new Error(await res.text());
+    return (await res.json()) as T;
+  } catch (e: any) {
+    pushToast({
+      message: `API unreachable (${baseUrl}). You can switch to Demo Mode.`,
+      action: "switch-demo",
+    });
+    throw e;
+  }
 }
 
 async function httpPost<T>(baseUrl: string, path: string, body?: unknown): Promise<T> {
-  const res = await fetch(`${baseUrl}${path}`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  if (!res.ok) throw new Error(await res.text());
-  return (await res.json()) as T;
+  try {
+    const res = await fetch(`${baseUrl}${path}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return (await res.json()) as T;
+  } catch (e: any) {
+    pushToast({
+      message: `API unreachable (${baseUrl}). You can switch to Demo Mode.`,
+      action: "switch-demo",
+    });
+    throw e;
+  }
 }
 
 export async function apiGet<T>(path: string): Promise<T> {
@@ -48,4 +65,3 @@ export async function apiPost<T>(path: string, body?: any): Promise<T> {
 
   return await httpPost<T>(getStoredApiBaseUrl(), path, body);
 }
-
