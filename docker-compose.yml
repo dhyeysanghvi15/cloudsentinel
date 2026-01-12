@@ -1,19 +1,11 @@
 services:
-  dynamodb-local:
-    image: amazon/dynamodb-local:latest
-    command: ["-jar", "DynamoDBLocal.jar", "-inMemory", "-sharedDb"]
-    ports:
-      - "8001:8000"
-
   api:
     build:
       context: ./api
     environment:
       AWS_REGION: ${AWS_REGION:-us-east-1}
-      STORAGE_MODE: ${STORAGE_MODE:-local}
-      ARTIFACT_BUCKET: ${ARTIFACT_BUCKET:-}
-      SCANS_TABLE: ${SCANS_TABLE:-cloudsentinel-local-scans}
-      DDB_ENDPOINT: ${DDB_ENDPOINT:-http://dynamodb-local:8000}
+      AWS_SCAN_ENABLED: ${AWS_SCAN_ENABLED:-0}
+      DATA_DIR: ${DATA_DIR:-/data}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
       OWNER_TAG: ${OWNER_TAG:-dhyey}
       ENV: ${ENV:-local}
@@ -21,6 +13,5 @@ services:
       ALLOW_ADMIN_SIM: ${ALLOW_ADMIN_SIM:-0}
     ports:
       - "8000:8000"
-    depends_on:
-      - dynamodb-local
-
+    volumes:
+      - ./data:/data
