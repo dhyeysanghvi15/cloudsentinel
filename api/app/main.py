@@ -20,6 +20,11 @@ app.add_middleware(
 )
 
 
+@app.get("/health")
+def health() -> dict:
+    return {"ok": True}
+
+
 @app.get("/healthz")
 def healthz() -> dict:
     return {"ok": True}

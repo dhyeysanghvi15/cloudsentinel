@@ -97,7 +97,13 @@ def _local_validate(policy_doc: dict[str, Any]) -> list[PolicyFinding]:
     return findings
 
 
-def validate_policy(session: boto3.session.Session, policy_json: str, policy_type: str) -> PolicyValidateResponse:
+def validate_policy(
+    session: boto3.session.Session | None,
+    policy_json: str,
+    policy_type: str,
+    *,
+    aws_enabled: bool = False,
+) -> PolicyValidateResponse:
     try:
         parsed = json.loads(policy_json)
     except Exception as e:
@@ -113,7 +119,10 @@ def validate_policy(session: boto3.session.Session, policy_json: str, policy_typ
             ],
         )
 
-    # Prefer Access Analyzer ValidatePolicy, but fall back without requiring any account-wide enablement.
+    if not aws_enabled or session is None:
+        return PolicyValidateResponse(mode="local", findings=_local_validate(parsed))
+
+    # Prefer Access Analyzer ValidatePolicy (read-only), but fall back if unavailable.
     try:
         aa = session.client("accessanalyzer")
         resp = aa.validate_policy(policyDocument=json.dumps(parsed), policyType=policy_type)
@@ -145,4 +154,3 @@ def validate_policy(session: boto3.session.Session, policy_json: str, policy_typ
         return PolicyValidateResponse(mode="access-analyzer", findings=findings)
     except Exception:
         return PolicyValidateResponse(mode="local", findings=_local_validate(parsed))
-

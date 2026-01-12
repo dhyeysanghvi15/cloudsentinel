@@ -38,7 +38,7 @@ class ScanMeta(BaseModel):
     region: str
     score: int
     domain_scores: dict[str, int]
-    s3_key: str
+    s3_key: str | None = None
 
 
 class PolicyValidateRequest(BaseModel):
@@ -63,4 +63,3 @@ class SimulateResponse(BaseModel):
     scenario: str
     started_at: datetime
     notes: str | None = None
-

@@ -11,7 +11,7 @@ def test_policy_doctor_local_detects_wildcards() -> None:
         DummySession(),  # type: ignore[arg-type]
         policy_json='{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"*","Resource":"*"}]}',
         policy_type="IDENTITY_POLICY",
+        aws_enabled=True,
     )
     assert resp.mode == "local"
     assert any("Action '*'" in f.message for f in resp.findings)
-
