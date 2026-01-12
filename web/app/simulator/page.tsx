@@ -101,7 +101,7 @@ export default function Simulator() {
           </div>
         </Card>
 
-        <Card title="Recent CloudTrail Events">
+        <Card title="Recent Timeline Events">
           <div className="grid gap-2 text-xs">
             {timeline.length ? (
               timeline.map((t, idx) => (
@@ -118,7 +118,7 @@ export default function Simulator() {
                 </div>
               ))
             ) : (
-              <div className="text-slate-500">No events found for the prefix.</div>
+              <div className="text-slate-500">No events found for this window.</div>
             )}
           </div>
         </Card>
