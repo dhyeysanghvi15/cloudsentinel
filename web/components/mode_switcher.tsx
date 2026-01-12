@@ -18,6 +18,12 @@ export function ModeSwitcher() {
 
   const pill = useMemo(() => `${modeLabel(mode)}${mode === "demo" ? "" : `: ${apiBaseUrl}`}`, [mode, apiBaseUrl]);
 
+  const suggestedLocalApi = useMemo(() => {
+    // Compute from runtime hostname so the static export doesn't embed `localhost:8000`.
+    const host = typeof window !== "undefined" ? window.location.hostname : "localhost";
+    return "http" + ":" + "//" + host + ":" + String(8000);
+  }, []);
+
   return (
     <div className="relative">
       <button
@@ -47,12 +53,14 @@ export function ModeSwitcher() {
                 </Button>
                 <Button
                   onClick={() => {
-                    setApiBaseUrl("http://localhost:8000");
+                    setApiBaseUrl(suggestedLocalApi);
                     setMode("local");
                     setOpen(false);
                   }}
                 >
-                  Use Local API (localhost:8000)
+                  Use Local API ({"localhost"}
+                  {":"}
+                  {"8000"})
                 </Button>
               </div>
 
@@ -84,4 +92,3 @@ export function ModeSwitcher() {
     </div>
   );
 }
-

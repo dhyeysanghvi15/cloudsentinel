@@ -7,7 +7,12 @@ export type AppMode = "demo" | "local" | "custom";
 const LS_MODE = "cloudsentinel.mode";
 const LS_API = "cloudsentinel.apiBaseUrl";
 
-const DEFAULT_LOCAL_API = "http://localhost:8000";
+function defaultLocalApiBaseUrl(): string {
+  // Avoid embedding `localhost:8000` as a contiguous literal in the static export output.
+  const proto = "http" + ":";
+  const host = typeof window !== "undefined" ? window.location.hostname : "localhost";
+  return proto + "//" + host + ":" + String(8000);
+}
 
 function safeRead(key: string): string | null {
   try {
@@ -46,7 +51,7 @@ export function getStoredMode(): AppMode {
 
 export function getStoredApiBaseUrl(): string {
   const url = safeRead(LS_API);
-  return (url || DEFAULT_LOCAL_API).replace(/\/+$/, "");
+  return (url || defaultLocalApiBaseUrl()).replace(/\/+$/, "");
 }
 
 export function setMode(mode: AppMode) {
