@@ -140,21 +140,33 @@ export default function Dashboard() {
 }
 
 function TopRisks({ scanId }: { scanId: string }) {
+  type ScanDetailResp = {
+    snapshot: {
+      results: Array<{
+        id: string;
+        title: string;
+        severity: string;
+        status: string;
+        recommendation: string;
+      }>;
+    } | null;
+  };
+
   const [items, setItems] = useState<
     Array<{ id: string; title: string; severity: string; status: string; recommendation: string }>
   >([]);
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
-    apiGet<any>(`/api/scans/${scanId}`)
+    apiGet<ScanDetailResp>(`/api/scans/${scanId}`)
       .then((d) => {
         const results = d?.snapshot?.results || [];
         const rank = (s: string) => (s === "critical" ? 4 : s === "high" ? 3 : s === "medium" ? 2 : 1);
         const top = results
-          .filter((r: any) => r.status === "fail" || r.status === "warn")
-          .sort((a: any, b: any) => rank(b.severity) - rank(a.severity))
+          .filter((r) => r.status === "fail" || r.status === "warn")
+          .sort((a, b) => rank(b.severity) - rank(a.severity))
           .slice(0, 6)
-          .map((r: any) => ({
+          .map((r) => ({
             id: r.id,
             title: r.title,
             severity: r.severity,

@@ -18,7 +18,7 @@ type ScanDetail = {
     scan_id: string;
     created_at: string;
     score: number;
-    breakdown: any;
+    breakdown: unknown;
     results: Array<{
       id: string;
       title: string;
@@ -26,7 +26,7 @@ type ScanDetail = {
       status: string;
       domain: string;
       recommendation: string;
-      evidence: any;
+      evidence: unknown;
     }>;
   } | null;
 };
@@ -149,7 +149,7 @@ export default function Scans() {
               </div>
               <div className="mb-3 text-xs text-slate-400">
                 Domains:{" "}
-                {Object.entries(detailB.snapshot.breakdown?.domain_scores || {})
+                {Object.entries(readDomainScores(detailB.snapshot.breakdown))
                   .slice(0, 4)
                   .map(([d, s]) => `${d}=${s}`)
                   .join(" • ") || "—"}
@@ -175,4 +175,11 @@ export default function Scans() {
       </div>
     </div>
   );
+}
+
+function readDomainScores(breakdown: unknown): Record<string, number> {
+  if (!breakdown || typeof breakdown !== "object") return {};
+  const b = breakdown as { domain_scores?: unknown };
+  if (!b.domain_scores || typeof b.domain_scores !== "object") return {};
+  return b.domain_scores as Record<string, number>;
 }

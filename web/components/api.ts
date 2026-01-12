@@ -7,7 +7,7 @@ async function httpGet<T>(baseUrl: string, path: string): Promise<T> {
     const res = await fetch(`${baseUrl}${path}`, { cache: "no-store" });
     if (!res.ok) throw new Error(await res.text());
     return (await res.json()) as T;
-  } catch (e: any) {
+  } catch (e) {
     pushToast({
       message: `API unreachable (${baseUrl}). You can switch to Demo Mode.`,
       action: "switch-demo",
@@ -25,7 +25,7 @@ async function httpPost<T>(baseUrl: string, path: string, body?: unknown): Promi
     });
     if (!res.ok) throw new Error(await res.text());
     return (await res.json()) as T;
-  } catch (e: any) {
+  } catch (e) {
     pushToast({
       message: `API unreachable (${baseUrl}). You can switch to Demo Mode.`,
       action: "switch-demo",
@@ -50,11 +50,15 @@ export async function apiGet<T>(path: string): Promise<T> {
   return await httpGet<T>(getStoredApiBaseUrl(), path);
 }
 
-export async function apiPost<T>(path: string, body?: any): Promise<T> {
+export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
   const mode = getStoredMode();
   if (mode === "demo") {
     if (path === "/api/scan") return (await demoRunScan()) as T;
-    if (path === "/api/policy/validate") return (await demoPolicyValidate(String(body?.policy_json || ""))) as T;
+    if (path === "/api/policy/validate") {
+      const payload = body as { policy_json?: unknown } | undefined;
+      const policyJson = typeof payload?.policy_json === "string" ? payload.policy_json : "";
+      return (await demoPolicyValidate(policyJson)) as T;
+    }
     if (path.startsWith("/api/simulate/cleanup")) return (await demoSimulate("cleanup")) as T;
     if (path.startsWith("/api/simulate/")) {
       const scenario = path.split("/api/simulate/")[1] || "unknown";

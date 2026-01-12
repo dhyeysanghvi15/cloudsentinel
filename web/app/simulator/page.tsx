@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { apiGet, apiPost } from "../../components/api";
 import { ApiError } from "../../components/api_error";
 import { Button, Card, Input } from "../../components/ui";
@@ -19,6 +19,11 @@ export default function Simulator() {
   const [op, setOp] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const loadTimeline = useCallback(async () => {
+    const r = await apiGet<{ items: TimelineItem[] }>(`/api/timeline?since=${encodeURIComponent(since)}`);
+    setTimeline(r.items);
+  }, [since]);
 
   async function run(scenario: string) {
     setErr(null);
@@ -47,14 +52,9 @@ export default function Simulator() {
     }
   }
 
-  async function loadTimeline() {
-    const r = await apiGet<{ items: TimelineItem[] }>(`/api/timeline?since=${encodeURIComponent(since)}`);
-    setTimeline(r.items);
-  }
-
   useEffect(() => {
     loadTimeline().catch(() => {});
-  }, []);
+  }, [loadTimeline]);
 
   return (
     <div className="grid gap-6">

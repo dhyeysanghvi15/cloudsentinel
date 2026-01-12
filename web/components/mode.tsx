@@ -71,8 +71,9 @@ export function useAppMode(): { mode: AppMode; apiBaseUrl: string } {
     };
   }, []);
 
+  // Recompute on each rerender; `tick` forces rerenders on storage/mode events.
   return useMemo(() => {
+    void tick;
     return { mode: getStoredMode(), apiBaseUrl: getStoredApiBaseUrl() };
   }, [tick]);
 }
-

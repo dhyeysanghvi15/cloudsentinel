@@ -17,7 +17,7 @@ type CheckResult = {
   status: string;
   domain: string;
   recommendation: string;
-  evidence: any;
+  evidence: unknown;
 };
 
 type ScanDetail = {
@@ -26,7 +26,7 @@ type ScanDetail = {
     scan_id: string;
     created_at: string;
     score: number;
-    breakdown: any;
+    breakdown: unknown;
     results: CheckResult[];
   } | null;
 };
@@ -264,10 +264,10 @@ export async function demoPolicyValidate(policy_json: string): Promise<{
   // Seed file exists for realism; validation here is deterministic and local-only.
   await fetchJson("/demo/demo_policy_validate_examples.json").catch(() => null);
 
-  let parsed: any;
+  let parsed: unknown;
   try {
     parsed = JSON.parse(policy_json);
-  } catch (e: any) {
+  } catch (e) {
     return {
       mode: "local",
       findings: [
@@ -275,15 +275,21 @@ export async function demoPolicyValidate(policy_json: string): Promise<{
           severity: "error",
           message: "Invalid JSON.",
           why: "IAM policies must be valid JSON to be evaluated.",
-          hint: String(e?.message || e),
+          hint: String((e as { message?: unknown } | null)?.message || e),
         },
       ],
     };
   }
 
-  const findings: Array<{ severity: "error" | "warning" | "suggestion"; message: string; why: string; hint?: string | null }> = [];
+  const findings: Array<{
+    severity: "error" | "warning" | "suggestion";
+    message: string;
+    why: string;
+    hint?: string | null;
+  }> = [];
 
-  const version = parsed?.Version;
+  const doc = parsed as { Version?: unknown; Statement?: unknown };
+  const version = doc.Version;
   if (version !== "2012-10-17" && version !== "2008-10-17") {
     findings.push({
       severity: "warning",
@@ -293,8 +299,8 @@ export async function demoPolicyValidate(policy_json: string): Promise<{
     });
   }
 
-  let stmts = parsed?.Statement;
-  if (!stmts) {
+  const stmtsRaw = doc.Statement;
+  if (!stmtsRaw) {
     return {
       mode: "local",
       findings: [
@@ -307,12 +313,13 @@ export async function demoPolicyValidate(policy_json: string): Promise<{
       ],
     };
   }
-  if (!Array.isArray(stmts)) stmts = [stmts];
+  const stmts: unknown[] = Array.isArray(stmtsRaw) ? stmtsRaw : [stmtsRaw];
 
-  const isStar = (v: any) => v === "*" || (Array.isArray(v) && v.some((x) => x === "*"));
+  const isStar = (v: unknown) => v === "*" || (Array.isArray(v) && v.some((x) => x === "*"));
 
   for (const s of stmts) {
-    if (s?.Effect !== "Allow" && s?.Effect !== "Deny") {
+    const stmt = s as { Effect?: unknown; Action?: unknown; Resource?: unknown; Condition?: unknown };
+    if (stmt.Effect !== "Allow" && stmt.Effect !== "Deny") {
       findings.push({
         severity: "error",
         message: "Statement Effect must be Allow or Deny.",
@@ -320,7 +327,7 @@ export async function demoPolicyValidate(policy_json: string): Promise<{
         hint: "Use Effect: Allow or Deny.",
       });
     }
-    if (isStar(s?.Action)) {
+    if (isStar(stmt.Action)) {
       findings.push({
         severity: "warning",
         message: "Statement uses Action '*'.",
@@ -328,7 +335,7 @@ export async function demoPolicyValidate(policy_json: string): Promise<{
         hint: "Replace '*' with specific actions and add conditions where possible.",
       });
     }
-    if (isStar(s?.Resource)) {
+    if (isStar(stmt.Resource)) {
       findings.push({
         severity: "warning",
         message: "Statement uses Resource '*'.",
@@ -336,7 +343,7 @@ export async function demoPolicyValidate(policy_json: string): Promise<{
         hint: "Scope Resource to specific ARNs, and add conditions.",
       });
     }
-    if (s?.Effect === "Allow" && !s?.Condition) {
+    if (stmt.Effect === "Allow" && !stmt.Condition) {
       findings.push({
         severity: "suggestion",
         message: "Consider adding conditions (MFA, source IP, tags).",
@@ -371,4 +378,3 @@ export async function demoPolicyValidate(policy_json: string): Promise<{
 export function isDemoMode(mode: AppMode): boolean {
   return mode === "demo";
 }
-
