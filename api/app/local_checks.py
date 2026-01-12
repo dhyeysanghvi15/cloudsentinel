@@ -72,7 +72,7 @@ def local_checks(st: Storage) -> list[CheckResult]:
             title="Audit trail coverage (timeline store)",
             severity="high",
             status="pass",
-            domain="Logging & Monitoring",
+            domain="Logging & Traceability",
             evidence={"mode": "local", "store": "sqlite"},
             recommendation="Capture management events and alert on sensitive actions (policy changes, public access).",
             references=[],
@@ -83,7 +83,7 @@ def local_checks(st: Storage) -> list[CheckResult]:
             title="Detection baseline for high-risk events",
             severity="medium",
             status="warn" if saw_any else "fail",
-            domain="Logging & Monitoring",
+            domain="Logging & Traceability",
             evidence={"mode": "local", "events_last_7d": len(items)},
             recommendation="Start with a baseline: policy attachments, access key creation, and public ACL attempts.",
             references=[],
@@ -127,7 +127,7 @@ def local_checks(st: Storage) -> list[CheckResult]:
             title="Remediation workflow defined",
             severity="low",
             status="pass",
-            domain="Readiness",
+            domain="IR Readiness",
             evidence={"mode": "local", "note": "sample workflow"},
             recommendation="Track findings in tickets with SLA by severity; verify fixes via scan diffs.",
             references=[],
@@ -135,4 +135,3 @@ def local_checks(st: Storage) -> list[CheckResult]:
         ),
     ]
     return results
-

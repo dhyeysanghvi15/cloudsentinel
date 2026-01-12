@@ -20,17 +20,23 @@ def run_scan(st: Storage, settings: Settings) -> ScanSnapshot:
     account_id = None
     results = None
 
+    aws_note = None
     if settings.aws_scan_enabled:
         session = boto_session(settings.aws_region)
         account_id = get_account_id(session)
         if not account_id:
             results = local_checks(st)
+            aws_note = "AWS_SCAN_ENABLED=true but credentials were not detected; ran offline checks instead."
         else:
             results = [fn(session, settings.aws_region) for fn in all_checks()]
     else:
         results = local_checks(st)
 
     score, breakdown = compute_score(results)
+    if aws_note:
+        breakdown = {**breakdown, "aws": {"enabled": True, "account_id": account_id, "note": aws_note}}
+    else:
+        breakdown = {**breakdown, "aws": {"enabled": bool(settings.aws_scan_enabled), "account_id": account_id}}
     snapshot = ScanSnapshot(
         scan_id=scan_id,
         created_at=created_at,
@@ -42,4 +48,3 @@ def run_scan(st: Storage, settings: Settings) -> ScanSnapshot:
     )
     st.put_scan(snapshot)
     return snapshot
-
