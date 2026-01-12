@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from .models import CheckResult
 from .storage import Storage
@@ -14,7 +14,7 @@ def local_checks(st: Storage) -> list[CheckResult]:
     They also react to the local simulator timeline so scans can show diffs/regressions.
     """
 
-    items = st.list_timeline(since=datetime.now(timezone.utc) - timedelta(days=7), limit=1000)
+    items = st.list_timeline(since=datetime.now(UTC) - timedelta(days=7), limit=1000)
     names = {str(i.get("eventName") or "") for i in items}
 
     saw_public_acl = "PutBucketAcl" in names
@@ -31,7 +31,9 @@ def local_checks(st: Storage) -> list[CheckResult]:
             domain="Identity & Access",
             evidence={"mode": "local", "note": "offline lab: assumes break-glass exists, MFA not proven"},
             recommendation="Enable MFA on the root account and lock root credentials away.",
-            references=["https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_enable_virtual.html"],
+            references=[
+                "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_enable_virtual.html"
+            ],
             weight=15,
         ),
         CheckResult(
@@ -42,7 +44,9 @@ def local_checks(st: Storage) -> list[CheckResult]:
             domain="Identity & Access",
             evidence={"mode": "local", "baseline": "strong"},
             recommendation="Prefer SSO/STS; if passwords exist, require >=12 chars and symbols+numbers.",
-            references=["https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_passwords_account-policy.html"],
+            references=[
+                "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_passwords_account-policy.html"
+            ],
             weight=10,
         ),
         CheckResult(
@@ -53,7 +57,9 @@ def local_checks(st: Storage) -> list[CheckResult]:
             domain="Identity & Access",
             evidence={"mode": "local", "signal": "CreateAccessKey", "seen": saw_access_key},
             recommendation="Rotate/remove long-lived keys; prefer short-lived credentials (SSO/STS).",
-            references=["https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#best-practices-credentials"],
+            references=[
+                "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#best-practices-credentials"
+            ],
             weight=10,
         ),
         CheckResult(
@@ -64,7 +70,9 @@ def local_checks(st: Storage) -> list[CheckResult]:
             domain="Identity & Access",
             evidence={"mode": "local", "signal": "AttachUserPolicy", "seen": saw_admin_attach},
             recommendation="Minimize broad admin policies; use least privilege and scoped roles with conditions.",
-            references=["https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#lock-away-credentials"],
+            references=[
+                "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#lock-away-credentials"
+            ],
             weight=12,
         ),
         CheckResult(

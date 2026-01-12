@@ -41,4 +41,3 @@ def test_compute_score_excludes_skip_and_error() -> None:
     score, breakdown = compute_score(results)
     assert score == 75
     assert breakdown["total_weight"] == 20
-

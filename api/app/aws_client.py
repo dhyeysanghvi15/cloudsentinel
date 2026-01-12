@@ -23,4 +23,3 @@ def get_account_id(session: boto3.session.Session) -> str | None:
         return session.client("sts").get_caller_identity().get("Account")
     except Exception:
         return None
-

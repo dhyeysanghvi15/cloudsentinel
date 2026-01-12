@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime
 
 import boto3
 
@@ -20,7 +20,9 @@ def check_root_mfa(session: boto3.session.Session, region: str) -> CheckResult:
             domain="Identity & Access",
             evidence={"AccountMFAEnabled": summary.get("AccountMFAEnabled")},
             recommendation="Enable MFA on the root account and lock root credentials away.",
-            references=["https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_enable_virtual.html"],
+            references=[
+                "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_enable_virtual.html"
+            ],
             weight=15,
         )
     except Exception as e:
@@ -58,7 +60,9 @@ def check_iam_password_policy(session: boto3.session.Session, region: str) -> Ch
                 "RequireLowercaseCharacters": policy.get("RequireLowercaseCharacters"),
             },
             recommendation="Set a strong password policy (>=12 chars, numbers+symbols, rotation where appropriate).",
-            references=["https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_passwords_account-policy.html"],
+            references=[
+                "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_passwords_account-policy.html"
+            ],
             weight=10,
         )
     except iam.exceptions.NoSuchEntityException:
@@ -89,7 +93,7 @@ def check_iam_password_policy(session: boto3.session.Session, region: str) -> Ch
 
 def check_iam_old_access_keys(session: boto3.session.Session, region: str) -> CheckResult:
     iam = session.client("iam", region_name=region)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     threshold_days = 90
     stale: list[dict] = []
     try:
@@ -102,7 +106,9 @@ def check_iam_old_access_keys(session: boto3.session.Session, region: str) -> Ch
                     created = k["CreateDate"]
                     age_days = (now - created).days
                     if age_days >= threshold_days:
-                        stale.append({"user": username, "access_key_id": k["AccessKeyId"], "age_days": age_days})
+                        stale.append(
+                            {"user": username, "access_key_id": k["AccessKeyId"], "age_days": age_days}
+                        )
 
         status = "pass" if not stale else "warn"
         return CheckResult(
@@ -113,7 +119,9 @@ def check_iam_old_access_keys(session: boto3.session.Session, region: str) -> Ch
             domain="Identity & Access",
             evidence={"stale_keys": stale[:50], "count": len(stale), "threshold_days": threshold_days},
             recommendation="Rotate or remove old access keys; prefer short-lived credentials (SSO/STS).",
-            references=["https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#best-practices-credentials"],
+            references=[
+                "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#best-practices-credentials"
+            ],
             weight=10,
         )
     except Exception as e:
@@ -163,7 +171,9 @@ def check_iam_admin_attachments(session: boto3.session.Session, region: str) -> 
             domain="Identity & Access",
             evidence={"attachments": attached[:50], "count": len(attached)},
             recommendation="Minimize broad admin policies; use least privilege and scoped roles with MFA/conditions.",
-            references=["https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#lock-away-credentials"],
+            references=[
+                "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#lock-away-credentials"
+            ],
             weight=12,
         )
     except Exception as e:
@@ -178,4 +188,3 @@ def check_iam_admin_attachments(session: boto3.session.Session, region: str) -> 
             references=[],
             weight=12,
         )
-

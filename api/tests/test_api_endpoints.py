@@ -1,5 +1,3 @@
-import os
-
 from fastapi.testclient import TestClient
 
 
@@ -33,4 +31,3 @@ def test_scan_timeline_roundtrip(tmp_path, monkeypatch) -> None:
     detail = c.get(f"/api/scans/{snap['scan_id']}").json()
     assert detail["meta"]["scan_id"] == snap["scan_id"]
     assert detail["snapshot"]["scan_id"] == snap["scan_id"]
-

@@ -33,4 +33,3 @@ def check_aws_config_recorder_present(session: boto3.session.Session, region: st
             references=[],
             weight=8,
         )
-

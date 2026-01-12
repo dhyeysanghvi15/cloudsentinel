@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, Query
 
 from ..config import get_settings
 from ..models import ScanMeta, ScanSnapshot
-from ..scan_engine import run_scan
+from ..scan_engine import run_scan as run_scan_engine
 from .deps import storage
 
 router = APIRouter()
@@ -14,7 +14,7 @@ router = APIRouter()
 def run_scan() -> ScanSnapshot:
     settings = get_settings()
     st = storage()
-    return run_scan(st, settings)
+    return run_scan_engine(st, settings)
 
 
 @router.get("/api/scans")
@@ -28,7 +28,7 @@ def get_scan(scan_id: str) -> dict:
     try:
         meta, snapshot = st.get_scan(scan_id)
     except KeyError:
-        raise HTTPException(status_code=404, detail="scan not found")
+        raise HTTPException(status_code=404, detail="scan not found") from None
     return {"meta": meta.model_dump(mode="json"), "snapshot": snapshot}
 
 

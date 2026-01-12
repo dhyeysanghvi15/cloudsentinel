@@ -3,23 +3,23 @@
 PROJECT ?= cloudsentinel
 
 dev:
-\tdocker compose up --build api
+	docker compose up --build api
 
 api:
-\t$(MAKE) dev
+	$(MAKE) dev
 
 web:
-\tcd web && npm install && npm run dev
+	cd web && npm ci && npm run dev
 
 web-build:
-\tcd web && npm install && NEXT_PUBLIC_BASE_PATH="/$(PROJECT)" npm run build
+	cd web && npm ci && NEXT_PUBLIC_BASE_PATH="/$(PROJECT)" npm run build
 
 test:
-\tcd api && python3 -m pytest -q
+	docker compose run --rm api pytest -q
 
 fmt:
-\tcd api && python3 -m ruff format .
-\tcd api && python3 -m ruff check --fix .
+	docker compose run --rm api ruff format .
+	docker compose run --rm api ruff check --fix .
 
 lint:
-\tcd api && python3 -m ruff check .
+	docker compose run --rm api ruff check .

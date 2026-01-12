@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from ulid import ULID
+import ulid
 
 from .aws_client import boto_session, get_account_id
 from .checks.registry import all_checks
@@ -14,8 +14,8 @@ from .storage import Storage
 
 
 def run_scan(st: Storage, settings: Settings) -> ScanSnapshot:
-    scan_id = str(ULID())
-    created_at = datetime.now(timezone.utc)
+    scan_id = str(ulid.new())
+    created_at = datetime.now(UTC)
 
     account_id = None
     results = None
@@ -36,7 +36,10 @@ def run_scan(st: Storage, settings: Settings) -> ScanSnapshot:
     if aws_note:
         breakdown = {**breakdown, "aws": {"enabled": True, "account_id": account_id, "note": aws_note}}
     else:
-        breakdown = {**breakdown, "aws": {"enabled": bool(settings.aws_scan_enabled), "account_id": account_id}}
+        breakdown = {
+            **breakdown,
+            "aws": {"enabled": bool(settings.aws_scan_enabled), "account_id": account_id},
+        }
     snapshot = ScanSnapshot(
         scan_id=scan_id,
         created_at=created_at,

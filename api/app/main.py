@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .config import get_settings
 
-from .routers.scan import router as scan_router
+from .config import get_settings
 from .routers.policy import router as policy_router
+from .routers.scan import router as scan_router
 from .routers.sim import router as sim_router
 
 settings = get_settings()

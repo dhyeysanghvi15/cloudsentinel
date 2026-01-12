@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter
 
 from ..config import get_settings
-from ..models import SimulateResponse
 from ..local_simulator import SimConfig, simulate
+from ..models import SimulateResponse
 from .deps import storage
 
 router = APIRouter()
@@ -26,7 +26,7 @@ def simulate_scenario(scenario: str) -> SimulateResponse:
             allow_admin_sim=settings.allow_admin_sim,
         ),
     )
-    return SimulateResponse(operation_id=op, scenario=scenario, started_at=datetime.now(timezone.utc))
+    return SimulateResponse(operation_id=op, scenario=scenario, started_at=datetime.now(UTC))
 
 
 @router.post("/api/simulate/cleanup")
@@ -53,6 +53,6 @@ def timeline(since: str | None = None) -> dict:
     if since:
         parsed = datetime.fromisoformat(since.replace("Z", "+00:00"))
         if parsed.tzinfo is None:
-            parsed = parsed.replace(tzinfo=timezone.utc)
+            parsed = parsed.replace(tzinfo=UTC)
     items = st.list_timeline(since=parsed, limit=200)
     return {"items": items}

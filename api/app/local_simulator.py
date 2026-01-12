@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from ulid import ULID
+import ulid
 
 from .storage import Storage
 
@@ -21,13 +21,13 @@ def _prefix(cfg: SimConfig) -> str:
 
 
 def _events_for_scenario(scenario: str, cfg: SimConfig) -> list[dict]:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     def t(delta_ms: int) -> str:
-        return (now.timestamp() + delta_ms / 1000.0)
+        return now.timestamp() + delta_ms / 1000.0
 
     def iso(ts: float) -> str:
-        return datetime.fromtimestamp(ts, tz=timezone.utc).isoformat()
+        return datetime.fromtimestamp(ts, tz=UTC).isoformat()
 
     prefix = _prefix(cfg)
     if scenario == "iam-user":
@@ -90,11 +90,14 @@ def _events_for_scenario(scenario: str, cfg: SimConfig) -> list[dict]:
 
 
 def simulate(st: Storage, scenario: str, cfg: SimConfig) -> str:
-    operation_id = str(ULID())
+    operation_id = str(ulid.new())
     if scenario == "cleanup":
         st.reset_timeline()
-        st.append_timeline_events(events=_events_for_scenario("cleanup", cfg), scenario=scenario, operation_id=operation_id)
+        st.append_timeline_events(
+            events=_events_for_scenario("cleanup", cfg), scenario=scenario, operation_id=operation_id
+        )
         return operation_id
-    st.append_timeline_events(events=_events_for_scenario(scenario, cfg), scenario=scenario, operation_id=operation_id)
+    st.append_timeline_events(
+        events=_events_for_scenario(scenario, cfg), scenario=scenario, operation_id=operation_id
+    )
     return operation_id
-

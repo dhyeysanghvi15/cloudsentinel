@@ -38,7 +38,9 @@ def check_s3_public_access_block(session: boto3.session.Session, region: str) ->
             domain="Data Protection",
             evidence={"noncompliant_samples": bad[:10], "sampled": len(buckets)},
             recommendation="Enable S3 Public Access Block at account and bucket level; avoid public ACLs/policies.",
-            references=["https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html"],
+            references=[
+                "https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html"
+            ],
             weight=12,
         )
     except Exception as e:
@@ -155,9 +157,17 @@ def check_kms_key_policy_sanity(session: boto3.session.Session, region: str) -> 
                     action = s.get("Action")
                     resource = s.get("Resource")
                     if principal == "*" and (action == "*" or action == "kms:*"):
-                        findings.append({"key_id": key_id, "issue": "Wildcard principal with broad KMS actions", "stmt": s})
+                        findings.append(
+                            {
+                                "key_id": key_id,
+                                "issue": "Wildcard principal with broad KMS actions",
+                                "stmt": s,
+                            }
+                        )
                     if resource == "*" and (action == "*" or action == "kms:*"):
-                        findings.append({"key_id": key_id, "issue": "Resource '*' with broad KMS actions", "stmt": s})
+                        findings.append(
+                            {"key_id": key_id, "issue": "Resource '*' with broad KMS actions", "stmt": s}
+                        )
             except Exception:
                 continue
 

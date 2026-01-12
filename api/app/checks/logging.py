@@ -26,7 +26,9 @@ def check_cloudtrail_enabled(session: boto3.session.Session, region: str) -> Che
             domain="Logging & Traceability",
             evidence={"logging_trails": enabled, "count": len(enabled)},
             recommendation="Enable CloudTrail and ensure it is logging to an S3 bucket (and optionally CloudWatch Logs).",
-            references=["https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-create-and-update-a-trail.html"],
+            references=[
+                "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-create-and-update-a-trail.html"
+            ],
             weight=15,
         )
     except Exception as e:
@@ -55,9 +57,15 @@ def check_cloudtrail_multiregion(session: boto3.session.Session, region: str) ->
             severity="high",
             status=status,
             domain="IR Readiness",
-            evidence={"multi_region_trails": [{"name": t.get("Name"), "home_region": t.get("HomeRegion")} for t in multi]},
+            evidence={
+                "multi_region_trails": [
+                    {"name": t.get("Name"), "home_region": t.get("HomeRegion")} for t in multi
+                ]
+            },
             recommendation="Use a multi-region trail to capture management events across regions.",
-            references=["https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-concepts.html#cloudtrail-concepts-management-events"],
+            references=[
+                "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-concepts.html#cloudtrail-concepts-management-events"
+            ],
             weight=10,
         )
     except Exception as e:
@@ -95,7 +103,9 @@ def check_log_group_retention(session: boto3.session.Session, region: str) -> Ch
             domain="Logging & Traceability",
             evidence={"noncompliant_samples": groups[:20], "count": len(groups)},
             recommendation="Set log retention to a reasonable period (e.g., 7–90 days) to control cost and exposure.",
-            references=["https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html"],
+            references=[
+                "https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html"
+            ],
             weight=8,
         )
     except Exception as e:
@@ -110,4 +120,3 @@ def check_log_group_retention(session: boto3.session.Session, region: str) -> Ch
             references=[],
             weight=8,
         )
-

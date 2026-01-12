@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from .models import ScanMeta, ScanSnapshot
 
@@ -204,4 +205,3 @@ def default_storage(data_dir: str = "data") -> Storage:
     root = _repo_root()
     db_path = root / data_dir / "cloudsentinel.db"
     return Storage(StorageConfig(db_path=db_path))
-

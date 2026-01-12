@@ -4,7 +4,6 @@ import boto3
 
 from ..models import CheckResult
 
-
 SENSITIVE_PORTS = {22, 3389, 5432, 3306, 6379, 9200, 27017}
 
 
@@ -41,7 +40,11 @@ def check_sg_open_sensitive_ports(session: boto3.session.Session, region: str) -
             severity="critical",
             status=status,
             domain="Network Exposure",
-            evidence={"findings": open_rules[:25], "count": len(open_rules), "ports": sorted(SENSITIVE_PORTS)},
+            evidence={
+                "findings": open_rules[:25],
+                "count": len(open_rules),
+                "ports": sorted(SENSITIVE_PORTS),
+            },
             recommendation="Restrict inbound rules: remove 0.0.0.0/0 access on admin/database ports; use VPN/bastion/SSM.",
             references=["https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html"],
             weight=15,
@@ -58,4 +61,3 @@ def check_sg_open_sensitive_ports(session: boto3.session.Session, region: str) -
             references=[],
             weight=15,
         )
-

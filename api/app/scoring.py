@@ -45,4 +45,3 @@ def compute_score(results: list[CheckResult]) -> tuple[int, dict]:
         },
     }
     return score, breakdown
-
