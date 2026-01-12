@@ -37,3 +37,4 @@ flowchart LR
 
 - The repo does **not** deploy infrastructure and does **not** create AWS resources.
 - `AWS_SCAN_ENABLED=false` by default; enabling it is optional and intended for **read-only** checks only.
+- Legacy AWS deployment scripts remain in `scripts/` but are hard-disabled (they exit immediately).

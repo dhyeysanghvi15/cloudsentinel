@@ -1,8 +1,8 @@
-# Demo Script (Recruiter-friendly)
+# Demo Script (60 seconds)
 
 ## 1) GitHub Pages (no install)
 1. Open the GitHub Pages link from the repo README.
-2. Confirm the banner: **Demo Mode: using bundled sample data**.
+2. Confirm the banner: **Demo Mode: bundled sample data. Run locally for full features.**
 3. Click around:
    - Dashboard → Scans → Policy Doctor → Simulator
 
@@ -27,7 +27,7 @@
 3. Run:
    - **Create IAM User + Inline Policy**
    - **Attempt S3 Public ACL (revert)**
-4. Refresh Timeline → review CloudTrail events
+4. Refresh Timeline → review timeline events
 5. Click **Cleanup Lab Resources**
 
 ## 6) Record a GIF (optional)

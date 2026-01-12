@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+echo "This repo intentionally does NOT support AWS deployments (guaranteed $0 AWS bill)." >&2
+echo "GitHub Pages Demo Mode is always available; Local Mode runs on localhost." >&2
+exit 1
+
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TF_DIR="$ROOT/infra/terraform"
 

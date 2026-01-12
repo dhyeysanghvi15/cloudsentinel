@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+echo "This repo intentionally does NOT support AWS deployments (guaranteed $0 AWS bill)." >&2
+echo "GitHub Pages is deployed via GitHub Actions; Local Mode runs on localhost." >&2
+exit 1
+
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TF_DIR="$ROOT/infra/terraform"
 
@@ -20,4 +24,3 @@ aws s3 sync "$ROOT/web/out" "s3://$WEB_BUCKET" --delete
 
 echo "==> Web URL:"
 (cd "$TF_DIR" && terraform output -raw web_url)
-
