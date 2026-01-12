@@ -6,8 +6,8 @@ Interactive cloud security posture + detection lab — **demo-ready on GitHub Pa
 
 ---
 
-[![CI](https://github.com/dhyeysanghvi15/cloudsentinel/actions/workflows/ci.yml/badge.svg)](https://github.com/dhyeysanghvi15/cloudsentinel/actions/workflows/ci.yml)
-[![Deploy Pages](https://github.com/dhyeysanghvi15/cloudsentinel/actions/workflows/pages.yml/badge.svg)](https://github.com/dhyeysanghvi15/cloudsentinel/actions/workflows/pages.yml)
+[![CI](https://github.com/dhyeysanghvi15/cloudsentinel/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/dhyeysanghvi15/cloudsentinel/actions/workflows/ci.yml)
+[![Deploy Pages](https://github.com/dhyeysanghvi15/cloudsentinel/actions/workflows/pages.yml/badge.svg?branch=main)](https://github.com/dhyeysanghvi15/cloudsentinel/actions/workflows/pages.yml)
 [![License](https://img.shields.io/github/license/dhyeysanghvi15/cloudsentinel)](LICENSE)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115.6-009688?logo=fastapi&logoColor=white)
 ![Next.js](https://img.shields.io/badge/Next.js-14-000000?logo=nextdotjs&logoColor=white)
