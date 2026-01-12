@@ -1,21 +1,39 @@
-# Architecture (MVP)
+# Architecture
+
+cloudsentinel is a **local-first cloud security lab** with two runtime modes:
+
+- **Demo Mode (GitHub Pages):** zero backend, realistic bundled JSON data, interactive UI.
+- **Local Mode (localhost):** FastAPI backend + SQLite storage for full functionality.
+
+## High-level
 
 ```mermaid
 flowchart LR
-  U[Recruiter / User] -->|Browser| CF[S3 Static Site (web)]
-  CF -->|HTTPS| API[FastAPI (ECS Fargate)]
-  API -->|Scan Snapshot JSON| S3[(S3 artifacts bucket)]
-  API -->|Scan Metadata| DDB[(DynamoDB on-demand)]
-  API -->|Events + Logs| CW[(CloudWatch Logs)]
-  API -->|Read-only posture checks| AWS[(AWS APIs via boto3)]
-  API -->|Safe simulations| AWS
-  API -->|CloudTrail lookup| CT[(CloudTrail)]
+  U[User Browser] --> WEB[GitHub Pages\nStatic Next.js export]
+
+  subgraph Demo[Demo Mode (default on Pages)]
+    WEB --> DEMO[Bundled demo JSON\nweb/public/demo/*]
+    WEB --> LS[(localStorage\nmode + demo state)]
+  end
+
+  subgraph Local[Local Mode (full features)]
+    WEB -->|HTTP| API[FastAPI\nlocalhost:8000]
+    API --> DB[(SQLite\n./data/cloudsentinel.db)]
+    API --> TL[(Timeline events\nstored locally)]
+  end
+
+  subgraph Optional[Optional: Read-only AWS scan]
+    API -->|boto3 read-only| AWS[(Your AWS account)]
+  end
 ```
 
-Cost controls:
-- No NAT Gateway, no RDS, no OpenSearch, no EKS.
-- Fargate task size: `0.25 vCPU / 0.5GB`; ECS `desired_count=0` by default.
-- CloudWatch log retention: 7 days.
-- S3 artifacts lifecycle: expire after 30 days.
-- Billing alarm in `us-east-1` for low threshold.
+## Data flow (what feels “real”)
 
+- **CSPM scans:** Snapshot checks → score + breakdown → stored as scan history for diffs.
+- **Detections timeline:** Simulator writes events → UI queries timeline → replay scenarios.
+- **Policy Doctor:** Paste IAM JSON → findings + rewrite hints (local heuristics by default).
+
+## $0 AWS bill guarantee
+
+- The repo does **not** deploy infrastructure and does **not** create AWS resources.
+- `AWS_SCAN_ENABLED=false` by default; enabling it is optional and intended for **read-only** checks only.

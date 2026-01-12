@@ -1,81 +1,62 @@
 # cloudsentinel
 
-“Interactive AWS cloud security posture + detection lab with IAM policy doctor, attack simulation, and remediation workflows.”
+Interactive cloud security posture + detection lab (demo-ready on GitHub Pages, full mode via localhost).
 
-## What it is
-- A recruiter-facing, lab-only security project for **your own AWS account**.
-- FastAPI backend runs posture checks, validates IAM policies, and generates safe CloudTrail telemetry.
-- Next.js UI provides an interactive dashboard and workflows.
+## Live Demo (no backend)
+
+- GitHub Pages: `https://<github-username>.github.io/cloudsentinel/`
+
+## What you can click through
+
+- **Dashboard:** posture score + domain breakdown + top risks + trend
+- **Scans:** scan history + diff (improved/regressed) + scan detail
+- **Policy Doctor:** paste IAM policy JSON → findings + rewrite hints
+- **Simulator:** replay “attack-like” actions → see a realistic detection timeline
+
+## $0 AWS bill guarantee (explicit)
+
+- This repo does **not** deploy anything to AWS.
+- This repo does **not** run `terraform apply` and does **not** create AWS resources (VPC/ECS/S3/DynamoDB/CloudTrail trails/etc).
+- Demo Mode works entirely from bundled sample data on GitHub Pages.
+- Local Mode stores everything on your machine (SQLite in `./data/`).
+- Optional AWS scanning is **read-only** and **disabled by default**.
 
 ## Skills demonstrated
-- AWS IAM + least privilege, Access Analyzer policy validation (when available)
-- AWS CloudTrail event timeline + detection thinking
-- S3 + DynamoDB storage patterns (low-cost, on-demand)
-- Containerized FastAPI → ECS Fargate (public-only VPC, no NAT)
-- Terraform IaC + cost safeguards + teardown discipline
 
-## Architecture
-```mermaid
-flowchart LR
-  U[User] -->|Browser| WEB[S3 static site (Next.js export)]
-  U -->|HTTP| API[FastAPI on ECS Fargate\n(public task IP; dev/demo mode)]
-  API --> S3[(S3 artifacts: scan snapshots)]
-  API --> DDB[(DynamoDB: scan metadata)]
-  API --> CW[(CloudWatch Logs 7d retention)]
-  API --> AWS[(AWS APIs via boto3)]
-  API --> CT[(CloudTrail lookup)]
+- Cloud security posture thinking (what to check, how to score, how to prioritize)
+- Detection engineering UX (timeline, scenarios, “what happened” narrative)
+- IAM policy analysis UX (fast feedback, guardrails, rewrite hints)
+- Full-stack engineering (Next.js static export + FastAPI + SQLite + GitHub Actions Pages)
+
+## Run locally (2 minutes)
+
+1. `cp .env.example .env`
+2. Terminal A (API): `make dev` → `http://localhost:8000/health`
+3. Terminal B (web): `make web` → open `http://localhost:3000`
+4. In the UI header, set **Mode → Local API (localhost:8000)**.
+
+## Optional: enable read-only AWS scan (still $0 if you don’t deploy)
+
+1. Set `AWS_SCAN_ENABLED=true` in your `.env`
+2. Run `make dev`
+3. Run a scan from the Dashboard
+
+Minimal read-only IAM policy (example):
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    { "Effect": "Allow", "Action": ["sts:GetCallerIdentity"], "Resource": "*" },
+    { "Effect": "Allow", "Action": ["iam:GetAccountSummary", "iam:GetAccountPasswordPolicy", "iam:ListUsers", "iam:ListAccessKeys", "iam:ListRoles", "iam:ListAttachedUserPolicies", "iam:ListAttachedRolePolicies"], "Resource": "*" },
+    { "Effect": "Allow", "Action": ["ec2:DescribeSecurityGroups"], "Resource": "*" }
+  ]
+}
 ```
 
-## Run locally in 2 minutes
-1. `cp .env.example .env`
-2. `make dev` (API + DynamoDB local)
-3. In another terminal: `make web`
-4. Open `http://localhost:3000` (set API base via `NEXT_PUBLIC_API_BASE_URL` if needed)
+## Architecture
 
-## Deploy to AWS (dev)
-Prereqs: Docker, Terraform, AWS CLI credentials.
+- `docs/architecture.md`
 
-1. `make deploy-dev`
-2. `make start-dev`
-3. `./scripts/ecs-task-ip.sh` → API IP (dev/demo mode; no ALB)
-4. API URL: `http://<ip>:8000`
+## Demo media
 
-Frontend (S3 static export):
-- Build: `cd web && npm install && npm run export`
-- Upload: `make deploy-web API_BASE_URL=http://<ip>:8000`
-- Get URL: `cd infra/terraform && terraform output -raw web_url`
-
-## Cost controls (explicit)
-- No NAT Gateway.
-- No RDS / OpenSearch / EKS.
-- ECS service `desired_count=0` by default; start only when needed.
-- Smallest practical Fargate size: `256 CPU / 512 MiB`.
-- CloudWatch log retention: 7 days.
-- S3 artifacts lifecycle expiration: 30 days.
-- Billing alarm: `$10` estimated charges (us-east-1).
-
-## AWS resources created (dev)
-- VPC (public-only) + 2 public subnets + IGW + route tables
-- ECS cluster + task definition + service (Fargate)
-- ECR repo (with lifecycle policy keeping last 10 images)
-- S3 artifacts bucket (private, SSE-S3, 30-day expiration)
-- DynamoDB table (on-demand)
-- S3 website bucket (public read; dev-only)
-- CloudWatch log group (7-day retention)
-- CloudWatch billing alarm + SNS topic (optional email subscription)
-
-## Cost estimate (rough)
-- Idle (service stopped, desiredCount=0): ~$0–$2/mo (S3+DDB storage/requests + minimal logs; depends on usage)
-- While running 1 task: Fargate compute + logs (typically a few $/month if run a few hours/week; stop when done)
-
-## Teardown
-- `make stop-dev`
-- `make destroy-dev`
-
-## Demo GIF
-- Record a short run (Dashboard scan → Policy Doctor → Simulator timeline) and save to `docs/demo.gif`.
-- Embed it near the top of this README for maximum recruiter impact.
-
-## Security & ethics
-- Lab-only: run in a dedicated dev AWS account you own.
-- Simulations create tagged resources with prefix `cloudsentinel-sim-*` and include cleanup.
+- Record a short run (Dashboard → Scans diff → Policy Doctor → Simulator timeline) and save to `docs/demo.gif`.

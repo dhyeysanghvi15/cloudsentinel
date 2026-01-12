@@ -1,18 +1,17 @@
-# Threat Model (Lab-only)
+# Threat Model (Local-first)
 
 ## Assets
-- AWS account telemetry (CloudTrail events).
-- Scan artifacts (JSON snapshots) stored in S3.
-- Scan metadata in DynamoDB.
+- Local scan snapshots (stored in SQLite under `./data/`).
+- Local simulator timeline events (stored in SQLite under `./data/`).
+- Pasted policy JSON in the browser (Policy Doctor UI).
 
 ## Primary risks
-- Over-permissioned scanning role.
-- Accidental creation of costly resources.
-- Attack simulations impacting real resources.
+- Running untrusted policies or scans against a real environment without reviewing permissions.
+- Exposing the local API to the internet (CORS/origin misconfig).
+- Confusing demo data for real findings.
 
 ## Mitigations
-- Explicit cost controls: no NAT/RDS/OpenSearch/EKS; ECS desiredCount=0 by default.
-- Simulations use dedicated prefixes + tags and have automatic cleanup.
-- Log retention set to 7 days; artifacts lifecycle expiration 30 days.
-- IAM policy doctor encourages least-privilege and safe conditions.
-
+- **$0 AWS bill default:** `AWS_SCAN_ENABLED=false` and no AWS deployments in this repo.
+- Local Mode stores data on disk only; no cloud dependencies.
+- Demo Mode banner is always visible when using bundled data.
+- Optional AWS scanning is intended to be **read-only** (principle of least privilege).
