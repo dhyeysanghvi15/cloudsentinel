@@ -1,97 +1,148 @@
 # cloudsentinel
 
-Interactive cloud security posture + detection lab (demo-ready on GitHub Pages, full mode via localhost). 🔐
+Interactive cloud security posture + detection lab — **demo-ready on GitHub Pages, full mode on localhost**. 🛡️
 
-## Live Demo (GitHub Pages)
+[Live Demo](https://dhyeysanghvi15.github.io/cloudsentinel/) • [Run Locally](#run-locally) • [Modes](#modes) • [Proof](#proof-of-engineering) • [Build--ship-pages](#build--ship-pages) • [Guarantee](#0-aws-bill-guarantee)
 
-- `https://dhyeysanghvi15.github.io/cloudsentinel/` (no backend, fully interactive)
-- Runs locally in ~2 minutes: `make dev` + `make web`
+---
+
+[![CI](https://github.com/dhyeysanghvi15/cloudsentinel/actions/workflows/ci.yml/badge.svg)](https://github.com/dhyeysanghvi15/cloudsentinel/actions/workflows/ci.yml)
+[![Deploy Pages](https://github.com/dhyeysanghvi15/cloudsentinel/actions/workflows/pages.yml/badge.svg)](https://github.com/dhyeysanghvi15/cloudsentinel/actions/workflows/pages.yml)
+[![License](https://img.shields.io/github/license/dhyeysanghvi15/cloudsentinel)](LICENSE)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115.6-009688?logo=fastapi&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-14-000000?logo=nextdotjs&logoColor=white)
+![AWS bill](https://img.shields.io/badge/AWS%20bill-%240%20guarantee-111827?logo=amazonaws&logoColor=white)
+
+## Live Demo ☁️
+
+**GitHub Pages:** https://dhyeysanghvi15.github.io/cloudsentinel/  
+No backend. Click around immediately.
+
+**Runs locally in 2 minutes:**
+```bash
+cp .env.example .env
+make dev
+make web
+```
 
 ## What you’ll see in 60 seconds ⚡
 
-- Open **Dashboard** → see score, domain breakdown, top risks, and trend.
-- Go to **Scans** → compare the last two snapshots (improved vs regressed).
-- Paste an IAM policy into **Policy Doctor** → get findings + rewrite hints instantly.
-- Run **Simulator** scenarios → watch the detection timeline populate like real telemetry.
+<details open>
+<summary><strong>Click path (start-to-finish)</strong></summary>
+
+1) **Dashboard** → posture score + domain breakdown + trend  
+2) **Scans** → compare two snapshots (improved vs regressed)  
+3) **Policy Doctor** → paste IAM policy JSON → findings + rewrite hints  
+4) **Simulator** → run scenarios → see a realistic detection timeline  
+5) **Mode switcher** (header) → flip Demo / Local API / Custom API  
+
+</details>
 
 ## Modes
 
-- **Demo Mode (default on Pages):** bundled sample data (`web/public/demo/*`) + localStorage; no backend.
-- **Local Mode (localhost):** FastAPI + SQLite persistence in `./data/cloudsentinel.db`.
-- **Optional read-only AWS mode (local only):** set `AWS_SCAN_ENABLED=true` to run *read-only* boto3 checks against your own account; no resources created, and it fails closed.
+<details open>
+<summary><strong>Demo Mode (default on GitHub Pages)</strong></summary>
 
-## Features
+- Uses bundled sample data from `web/public/demo/*` + localStorage.
+- Works with **zero backend**.
+- Banner shown in-app (verbatim):  
+  **“Demo Mode: bundled sample data. Run locally for full features.”**
 
-- **Posture scoring & checks:** transparent scoring (`pass=1`, `warn=0.5`, `fail=0`) with evidence + recommendations.
-- **IAM Policy Doctor:** paste JSON → validation + safety-oriented hints (local heuristics; optional Access Analyzer if enabled).
-- **Timeline / Simulator:** demo replay on Pages; local timeline store + scenario runner on localhost.
-- **Scan history + diffs:** compare snapshots to show improvements/regressions over time.
+</details>
 
-## Skills I’m demonstrating (as proof)
+<details>
+<summary><strong>Local Mode (FastAPI on localhost)</strong></summary>
 
-- Designing CSPM checks with severity, evidence, and remediation guidance (not just “pass/fail”).
-- Building detection narratives: how timeline events become signals and triage workflows.
-- IAM policy risk analysis UX (fast feedback loops; safe defaults; least-privilege framing).
-- Product-quality delivery: static export + GitHub Pages + local backend + persistence.
+- Backend: `http://localhost:8000`
+- Persistence: `./data/cloudsentinel.db` (SQLite)
+- In the UI header: **Mode → Local API**
+
+</details>
+
+<details>
+<summary><strong>Optional Read-only AWS Mode (local only)</strong></summary>
+
+- Disabled by default: `AWS_SCAN_ENABLED=false`
+- If enabled, it performs **read-only** boto3 calls against **your** AWS account credentials.
+- No resources created; if credentials are missing, it fails closed and falls back safely.
+
+</details>
+
+## Core Features ✅
+
+| Feature | Why it matters | Where |
+|---|---|---|
+| Posture score + domains | Prioritizes what to fix first | `/dashboard` |
+| Scan history + diffs | Shows regressions/improvements over time | `/scans` |
+| IAM Policy Doctor | Faster + safer policy iteration | `/policy-doctor` |
+| Timeline / Simulator | Turns actions into “detection thinking” | `/simulator` |
+| API-down fallback | Keeps the experience usable in Demo Mode | toast + **Switch to Demo Mode** |
+
+## Proof of engineering
+
+<details>
+<summary><strong>Show internals (API, storage, export, CI)</strong></summary>
+
+**API endpoints**
+- `GET /health`
+- `POST /api/scan`
+- `GET /api/scans`
+- `GET /api/scans/{scan_id}`
+- `GET /api/score/latest`
+- `POST /api/policy/validate`
+- `POST /api/simulate/{scenario}`
+- `POST /api/simulate/cleanup`
+- `GET /api/timeline?since=...`
+
+**Storage model**
+- Local persistence only: SQLite at `./data/cloudsentinel.db`
+
+**Export behavior (GitHub Pages)**
+- Next.js static export: `output: "export"`
+- Repo base path: `/cloudsentinel` (assets + routes)
+- Demo data is shipped inside the export: `web/out/demo/*.json`
+
+**CI workflows**
+- `.github/workflows/ci.yml` — API lint/tests + web lint/build
+- `.github/workflows/pages.yml` — builds `web/out` and deploys GitHub Pages
+
+</details>
 
 ## Run locally
 
 ```bash
 cp .env.example .env
-
-# Terminal A (API): starts FastAPI on http://localhost:8000
 make dev
-
-# Terminal B (Web): starts Next.js dev server on http://localhost:3000
 make web
 ```
 
-In the UI header: **Mode → Local API (localhost:8000)**.
+Open `http://localhost:3000` → header → **Mode → Local API**.
 
-## Deploy (GitHub Pages)
+## Build + ship (Pages)
 
-GitHub Pages publishes automatically on every push to `main` via:
-- Workflow: `deploy-pages` (`.github/workflows/pages.yml`)
-- Build: Next.js static export with `NEXT_PUBLIC_BASE_PATH="/cloudsentinel"` → artifact `web/out`
+- GitHub Actions builds a static export into `web/out` and deploys to GitHub Pages.
+- Workflow files:
+  - `.github/workflows/pages.yml`
+  - `.github/workflows/ci.yml`
 
-## $0 AWS bill guarantee (explicit)
+## $0 AWS bill guarantee
 
-**No Terraform apply. No AWS resources.** Demo Mode is backend-free, and Local Mode runs entirely on localhost.
+**No Terraform apply. No AWS resources created.**
 
-Optional AWS scanning is:
-- disabled by default (`AWS_SCAN_ENABLED=false`)
-- read-only by design
-- intended only for your own AWS account credentials on your machine
-
-Minimal read-only IAM policy (example for the scanning principal):
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    { "Effect": "Allow", "Action": ["sts:GetCallerIdentity"], "Resource": "*" },
-    { "Effect": "Allow", "Action": ["iam:GetAccountSummary", "iam:GetAccountPasswordPolicy", "iam:ListUsers", "iam:ListAccessKeys", "iam:ListRoles", "iam:ListAttachedUserPolicies", "iam:ListAttachedRolePolicies"], "Resource": "*" },
-    { "Effect": "Allow", "Action": ["ec2:DescribeSecurityGroups"], "Resource": "*" }
-  ]
-}
-```
-
-## Architecture
-
-- `docs/architecture.md` (Demo Mode vs Local Mode diagram + data flow)
+- Demo Mode: zero backend.
+- Local Mode: localhost-only + local SQLite.
+- Optional AWS scanning: **read-only**, **local-only**, **off by default**.
 
 ## Repo map
 
-- `web/` — Next.js UI (static export + GitHub Pages Demo Mode)
-- `web/public/demo/` — bundled demo JSON (scans, timeline, policy examples)
-- `api/` — FastAPI backend (localhost-only) + SQLite storage
-- `docs/` — architecture, demo script, threat model
-- `.github/workflows/pages.yml` — Pages deploy
-- `.github/workflows/ci.yml` — CI (API lint/tests + web build)
-
-## Screenshots / GIF
-
-Record a quick walkthrough (Dashboard → Scans diff → Policy Doctor → Simulator) and save it as `docs/demo.gif`.
+```text
+cloudsentinel/
+  api/        # FastAPI backend (localhost)
+  web/        # Next.js UI (static export + Pages demo)
+  docs/       # architecture + release notes
+  scripts/    # legacy AWS scripts are intentionally hard-disabled
+```
 
 ## Security & ethics
 
-Lab-only. Don’t point scanning at accounts you don’t own or have explicit permission to test.
+Lab-only. Don’t scan accounts you don’t own or have explicit permission to test.

@@ -30,6 +30,6 @@
 4. Refresh Timeline → review timeline events
 5. Click **Cleanup Lab Resources**
 
-## 6) Record a GIF (optional)
-- macOS: `Cmd+Shift+5` → record window
-- Save as `docs/demo.gif` and embed in `README.md`
+---
+
+Tip: keep this demo under 60 seconds — it’s designed to feel like a real CSPM + detection product, even in Demo Mode.
