@@ -58,9 +58,9 @@ export default function Simulator() {
   return (
     <div className="grid gap-6">
       <div>
-        <h1 className="text-2xl font-semibold">Attack Simulator (Safe Lab)</h1>
+        <h1 className="text-2xl font-semibold">Attack Simulator (Detections Lab)</h1>
         <div className="mt-1 text-sm text-slate-400">
-          Generates CloudTrail events using tagged, dedicated resources; includes cleanup.
+          Demo Mode replays a realistic timeline locally. Local Mode runs a localhost-only simulator + timeline store.
         </div>
       </div>
 
@@ -126,4 +126,3 @@ export default function Simulator() {
     </div>
   );
 }
-

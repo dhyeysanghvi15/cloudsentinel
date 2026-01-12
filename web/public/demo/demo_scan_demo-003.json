@@ -1,0 +1,142 @@
+{
+  "meta": {
+    "scan_id": "demo-003",
+    "created_at": "2026-01-10T18:42:10.000Z",
+    "score": 78,
+    "domain_scores": {
+      "Identity & Access": 80,
+      "Logging & Monitoring": 70,
+      "Network Exposure": 75,
+      "Data Protection": 85
+    }
+  },
+  "snapshot": {
+    "scan_id": "demo-003",
+    "created_at": "2026-01-10T18:42:10.000Z",
+    "score": 78,
+    "breakdown": {
+      "domain_scores": {
+        "Identity & Access": 80,
+        "Logging & Monitoring": 70,
+        "Network Exposure": 75,
+        "Data Protection": 85
+      },
+      "status_counts": {
+        "pass": 9,
+        "warn": 2,
+        "fail": 1
+      }
+    },
+    "results": [
+      {
+        "id": "iam.root_mfa",
+        "title": "Root account MFA enabled",
+        "severity": "critical",
+        "status": "warn",
+        "domain": "Identity & Access",
+        "recommendation": "Enforce MFA for root and break-glass access.",
+        "evidence": { "AccountMFAEnabled": 0, "note": "break-glass protected" }
+      },
+      {
+        "id": "iam.password_policy",
+        "title": "IAM account password policy strength",
+        "severity": "high",
+        "status": "pass",
+        "domain": "Identity & Access",
+        "recommendation": "Keep strong password policy or migrate fully to SSO.",
+        "evidence": { "MinimumPasswordLength": 14, "RequireSymbols": true, "RequireNumbers": true }
+      },
+      {
+        "id": "iam.admin_attachments",
+        "title": "AdministratorAccess/PowerUserAccess attachments",
+        "severity": "high",
+        "status": "warn",
+        "domain": "Identity & Access",
+        "recommendation": "Replace broad managed policies with least-privilege roles.",
+        "evidence": { "count": 1, "note": "temporary migration role" }
+      },
+      {
+        "id": "log.cloudtrail_enabled",
+        "title": "Audit trail coverage (CloudTrail-like)",
+        "severity": "high",
+        "status": "pass",
+        "domain": "Logging & Monitoring",
+        "recommendation": "Retain management events and alert on sensitive API calls.",
+        "evidence": { "coverage": "good" }
+      },
+      {
+        "id": "log.alerting_baseline",
+        "title": "Alerting baseline for high-risk events",
+        "severity": "medium",
+        "status": "warn",
+        "domain": "Logging & Monitoring",
+        "recommendation": "Tune detections and reduce false positives with enrichment.",
+        "evidence": { "signals": ["AttachUserPolicy", "PutBucketAcl", "CreateAccessKey"] }
+      },
+      {
+        "id": "net.sg_open_sensitive_ports",
+        "title": "Security groups open to 0.0.0.0/0 on sensitive ports",
+        "severity": "critical",
+        "status": "warn",
+        "domain": "Network Exposure",
+        "recommendation": "Remove internet exposure on admin/database ports; use VPN/bastion/SSM.",
+        "evidence": { "ports": [22], "note": "restricted by geo" }
+      },
+      {
+        "id": "net.egress_restrictions",
+        "title": "Egress restrictions on workloads",
+        "severity": "medium",
+        "status": "pass",
+        "domain": "Network Exposure",
+        "recommendation": "Maintain egress controls and monitor DNS/exfil patterns.",
+        "evidence": { "egress": "restricted" }
+      },
+      {
+        "id": "data.s3_public_access_block",
+        "title": "Public access guardrails for object storage",
+        "severity": "high",
+        "status": "pass",
+        "domain": "Data Protection",
+        "recommendation": "Keep public access blocks enabled account-wide.",
+        "evidence": { "blockPublicAcls": true, "ignorePublicAcls": true }
+      },
+      {
+        "id": "data.encryption_at_rest",
+        "title": "Encryption at rest for data stores",
+        "severity": "medium",
+        "status": "pass",
+        "domain": "Data Protection",
+        "recommendation": "Use KMS-backed encryption and rotate keys.",
+        "evidence": { "status": "enabled" }
+      },
+      {
+        "id": "data.backups",
+        "title": "Backups and recovery posture",
+        "severity": "low",
+        "status": "pass",
+        "domain": "Data Protection",
+        "recommendation": "Regularly test restores and document RPO/RTO.",
+        "evidence": { "rpo_hours": 12 }
+      },
+      {
+        "id": "ready.cspm_ownership",
+        "title": "Ownership + severity routing exists",
+        "severity": "low",
+        "status": "pass",
+        "domain": "Readiness",
+        "recommendation": "Define owners and on-call routing for critical findings.",
+        "evidence": { "owner": "security@company" }
+      },
+      {
+        "id": "ready.ticketing_workflow",
+        "title": "Remediation workflow defined",
+        "severity": "low",
+        "status": "pass",
+        "domain": "Readiness",
+        "recommendation": "Track findings in tickets with SLA by severity.",
+        "evidence": { "sla": "enforced" }
+      }
+    ]
+  }
+}
+

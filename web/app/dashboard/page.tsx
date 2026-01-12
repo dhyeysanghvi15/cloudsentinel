@@ -11,15 +11,27 @@ type LatestScore = {
   domain_scores?: Record<string, number>;
 };
 
+type ScanMeta = {
+  scan_id: string;
+  created_at: string;
+  score: number;
+  domain_scores: Record<string, number>;
+};
+
 export default function Dashboard() {
   const [latest, setLatest] = useState<LatestScore>({ score: null, scan_id: null });
+  const [scans, setScans] = useState<ScanMeta[]>([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   async function refresh() {
     setErr(null);
-    const data = await apiGet<LatestScore>("/api/score/latest");
+    const [data, scanList] = await Promise.all([
+      apiGet<LatestScore>("/api/score/latest"),
+      apiGet<ScanMeta[]>("/api/scans?limit=10"),
+    ]);
     setLatest(data);
+    setScans(scanList || []);
   }
 
   async function runScan() {
@@ -43,6 +55,15 @@ export default function Dashboard() {
     const ds = latest.domain_scores || {};
     return Object.entries(ds).sort((a, b) => b[1] - a[1]);
   }, [latest.domain_scores]);
+
+  const trend = useMemo(() => {
+    const scores = (scans || []).slice(0, 6).reverse().map((s) => s.score);
+    if (!scores.length) return [];
+    const min = Math.min(...scores);
+    const max = Math.max(...scores);
+    const span = Math.max(1, max - min);
+    return scores.map((s) => Math.round(((s - min) / span) * 10));
+  }, [scans]);
 
   return (
     <div className="grid gap-6">
@@ -83,14 +104,83 @@ export default function Dashboard() {
             )}
           </div>
         </Card>
-        <Card title="Next Actions">
+        <Card title="Trend (last 6 scans)">
+          {trend.length ? (
+            <div className="flex items-end gap-1">
+              {trend.map((h, i) => (
+                <div key={i} className="w-4 rounded bg-indigo-500/70" style={{ height: `${8 + h * 6}px` }} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-slate-500">Run your first scan.</div>
+          )}
+          <div className="mt-2 text-xs text-slate-400">Compare scans in the Scans view for improvements/regressions.</div>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card title="Top Risks (from latest scan)">
+          {latest.scan_id ? (
+            <TopRisks scanId={latest.scan_id} />
+          ) : (
+            <div className="text-sm text-slate-500">Run a scan to populate risks.</div>
+          )}
+        </Card>
+        <Card title="What To Try">
           <ul className="list-disc space-y-2 pl-5 text-sm text-slate-300">
-            <li>Review critical failures first (network exposure, root MFA, CloudTrail).</li>
-            <li>Use Policy Doctor to harden IAM JSON before deploying.</li>
-            <li>Run Attack Simulator to generate CloudTrail telemetry safely.</li>
+            <li>Run a scan, then compare the last two snapshots.</li>
+            <li>Paste a permissive policy in Policy Doctor and see rewrite hints.</li>
+            <li>Replay scenarios in Simulator and watch the detection timeline evolve.</li>
           </ul>
         </Card>
       </div>
+    </div>
+  );
+}
+
+function TopRisks({ scanId }: { scanId: string }) {
+  const [items, setItems] = useState<
+    Array<{ id: string; title: string; severity: string; status: string; recommendation: string }>
+  >([]);
+  const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    apiGet<any>(`/api/scans/${scanId}`)
+      .then((d) => {
+        const results = d?.snapshot?.results || [];
+        const rank = (s: string) => (s === "critical" ? 4 : s === "high" ? 3 : s === "medium" ? 2 : 1);
+        const top = results
+          .filter((r: any) => r.status === "fail" || r.status === "warn")
+          .sort((a: any, b: any) => rank(b.severity) - rank(a.severity))
+          .slice(0, 6)
+          .map((r: any) => ({
+            id: r.id,
+            title: r.title,
+            severity: r.severity,
+            status: r.status,
+            recommendation: r.recommendation,
+          }));
+        setItems(top);
+      })
+      .catch((e) => setErr(String(e)));
+  }, [scanId]);
+
+  if (err) return <div className="text-sm text-rose-200">{err}</div>;
+  if (!items.length) return <div className="text-sm text-slate-500">No risks detected.</div>;
+
+  return (
+    <div className="grid gap-2 text-sm">
+      {items.map((r) => (
+        <div key={r.id} className="rounded-lg border border-slate-800 bg-slate-950 p-3">
+          <div className="flex items-center justify-between gap-4">
+            <div className="font-semibold text-white">{r.title}</div>
+            <div className="text-xs text-slate-400">
+              <span className="font-mono">{r.status}</span> • {r.severity}
+            </div>
+          </div>
+          <div className="mt-2 text-xs text-slate-400">{r.recommendation}</div>
+        </div>
+      ))}
     </div>
   );
 }

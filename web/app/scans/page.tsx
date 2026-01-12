@@ -144,17 +144,29 @@ export default function Scans() {
           )}
         </Card>
 
-        <Card title="Latest Scan Snapshot">
+        <Card title="Scan Detail (B)">
           {detailB?.snapshot ? (
             <div className="text-sm">
               <div className="mb-2 text-slate-300">
                 Score: <span className="font-semibold text-white">{detailB.snapshot.score}</span>
               </div>
-              <div className="grid gap-1 text-xs text-slate-400">
-                {(detailB.snapshot.results || []).slice(0, 8).map((r) => (
-                  <div key={r.id} className="flex items-center justify-between gap-4">
-                    <div className="truncate">{r.title}</div>
-                    <div className="font-mono">{r.status}</div>
+              <div className="mb-3 text-xs text-slate-400">
+                Domains:{" "}
+                {Object.entries(detailB.snapshot.breakdown?.domain_scores || {})
+                  .slice(0, 4)
+                  .map(([d, s]) => `${d}=${s}`)
+                  .join(" • ") || "—"}
+              </div>
+              <div className="grid gap-2 text-xs">
+                {(detailB.snapshot.results || []).slice(0, 12).map((r) => (
+                  <div key={r.id} className="rounded-lg border border-slate-800 bg-slate-950 p-2">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="truncate font-medium text-slate-200">{r.title}</div>
+                      <div className="text-right text-slate-400">
+                        <span className="font-mono">{r.status}</span> • {r.severity}
+                      </div>
+                    </div>
+                    <div className="mt-1 text-slate-400">{r.recommendation}</div>
                   </div>
                 ))}
               </div>

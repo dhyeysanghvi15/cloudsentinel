@@ -1,0 +1,61 @@
+{
+  "items": [
+    {
+      "eventTime": "2026-01-10T18:35:10.000Z",
+      "eventName": "ConsoleLogin",
+      "eventSource": "signin.amazonaws.com",
+      "username": "demo-user",
+      "resources": []
+    },
+    {
+      "eventTime": "2026-01-10T18:36:44.000Z",
+      "eventName": "AttachUserPolicy",
+      "eventSource": "iam.amazonaws.com",
+      "username": "demo-user",
+      "resources": [{ "ResourceName": "cloudsentinel-sim-user-demo", "ResourceType": "AWS::IAM::User" }]
+    },
+    {
+      "eventTime": "2026-01-10T18:37:20.000Z",
+      "eventName": "PutUserPolicy",
+      "eventSource": "iam.amazonaws.com",
+      "username": "demo-user",
+      "resources": [{ "ResourceName": "cloudsentinel-sim-user-demo", "ResourceType": "AWS::IAM::User" }]
+    },
+    {
+      "eventTime": "2026-01-10T18:38:12.000Z",
+      "eventName": "CreateAccessKey",
+      "eventSource": "iam.amazonaws.com",
+      "username": "demo-user",
+      "resources": [{ "ResourceName": "cloudsentinel-sim-user-demo", "ResourceType": "AWS::IAM::User" }]
+    },
+    {
+      "eventTime": "2026-01-10T18:39:05.000Z",
+      "eventName": "CreateBucket",
+      "eventSource": "s3.amazonaws.com",
+      "username": "demo-user",
+      "resources": [{ "ResourceName": "cloudsentinel-sim-bucket-demo", "ResourceType": "AWS::S3::Bucket" }]
+    },
+    {
+      "eventTime": "2026-01-10T18:39:31.000Z",
+      "eventName": "PutBucketAcl",
+      "eventSource": "s3.amazonaws.com",
+      "username": "demo-user",
+      "resources": [{ "ResourceName": "cloudsentinel-sim-bucket-demo", "ResourceType": "AWS::S3::Bucket" }]
+    },
+    {
+      "eventTime": "2026-01-10T18:40:15.000Z",
+      "eventName": "GetObject",
+      "eventSource": "s3.amazonaws.com",
+      "username": "demo-user",
+      "resources": [{ "ResourceName": "cloudsentinel-sim-bucket-demo", "ResourceType": "AWS::S3::Bucket" }]
+    },
+    {
+      "eventTime": "2026-01-10T18:41:58.000Z",
+      "eventName": "DeleteAccessKey",
+      "eventSource": "iam.amazonaws.com",
+      "username": "demo-user",
+      "resources": [{ "ResourceName": "cloudsentinel-sim-user-demo", "ResourceType": "AWS::IAM::User" }]
+    }
+  ]
+}
+

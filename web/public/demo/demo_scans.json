@@ -1,0 +1,36 @@
+[
+  {
+    "scan_id": "demo-003",
+    "created_at": "2026-01-10T18:42:10.000Z",
+    "score": 78,
+    "domain_scores": {
+      "Identity & Access": 80,
+      "Logging & Monitoring": 70,
+      "Network Exposure": 75,
+      "Data Protection": 85
+    }
+  },
+  {
+    "scan_id": "demo-002",
+    "created_at": "2026-01-08T12:10:00.000Z",
+    "score": 72,
+    "domain_scores": {
+      "Identity & Access": 75,
+      "Logging & Monitoring": 65,
+      "Network Exposure": 70,
+      "Data Protection": 80
+    }
+  },
+  {
+    "scan_id": "demo-001",
+    "created_at": "2026-01-05T09:02:00.000Z",
+    "score": 66,
+    "domain_scores": {
+      "Identity & Access": 70,
+      "Logging & Monitoring": 60,
+      "Network Exposure": 62,
+      "Data Protection": 75
+    }
+  }
+]
+

@@ -1,0 +1,30 @@
+{
+  "examples": [
+    {
+      "label": "Wildcard admin-like policy",
+      "match_substring": "\"Action\":\"*\"",
+      "findings": [
+        {
+          "severity": "warning",
+          "message": "Statement uses Action '*'.",
+          "why": "Wildcard actions often grant unintended permissions across services.",
+          "hint": "Replace '*' with specific actions and add conditions where possible."
+        }
+      ]
+    },
+    {
+      "label": "Resource wildcard",
+      "match_substring": "\"Resource\":\"*\"",
+      "findings": [
+        {
+          "severity": "warning",
+          "message": "Statement uses Resource '*'.",
+          "why": "Resource wildcards can unintentionally expand access beyond intended targets.",
+          "hint": "Scope Resource to specific ARNs, and add conditions."
+        }
+      ]
+    }
+  ],
+  "note": "Used by Demo Mode. Local Mode calls the FastAPI validator."
+}
+
